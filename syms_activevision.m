@@ -15,7 +15,7 @@ p0 = [x0_x; x0_y; x0_z];
 
 syms Fx Fy Fz m_ctrl g_ctrl;
 syms psi; 
-psi = 0;
+% psi = 0;
 e_1 = [1; 0; 0];
 e_3 = [0; 0; 1];
 F =[Fx; Fy; Fz]; 

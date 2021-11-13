@@ -49,8 +49,8 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     mexPrintf("\nACADO Toolkit for Matlab - Developed by David Ariens and Rien Quirynen, 2009-2013 \n"); 
     mexPrintf("Support available at http://www.acadotoolkit.org/matlab \n \n"); 
 
-    if (nrhs != 9){ 
-      mexErrMsgTxt("This problem expects 9 right hand side argument(s) since you have defined 9 MexInput(s)");
+    if (nrhs != 10){ 
+      mexErrMsgTxt("This problem expects 10 right hand side argument(s) since you have defined 10 MexInput(s)");
     } 
  
     TIME autotime;
@@ -60,10 +60,12 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     DifferentialState v0_x;
     DifferentialState v0_y;
     DifferentialState v0_z;
+    DifferentialState psi;
     DifferentialState const_L;
     Control Fx;
     Control Fy;
     Control Fz;
+    Control psi_dot;
     double *mexinput0_temp = NULL; 
     if( !mxIsDouble(prhs[0]) || mxIsComplex(prhs[0]) || !(mxGetM(prhs[0])==1 && mxGetN(prhs[0])==1) ) { 
       mexErrMsgTxt("Input 0 must be a noncomplex scalar double.");
@@ -127,8 +129,15 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     mexinput8_temp = mxGetPr(prhs[8]); 
     double mexinput8 = *mexinput8_temp; 
 
+    double *mexinput9_temp = NULL; 
+    if( !mxIsDouble(prhs[9]) || mxIsComplex(prhs[9]) || !(mxGetM(prhs[9])==1 && mxGetN(prhs[9])==1) ) { 
+      mexErrMsgTxt("Input 9 must be a noncomplex scalar double.");
+    } 
+    mexinput9_temp = mxGetPr(prhs[9]); 
+    double mexinput9 = *mexinput9_temp; 
+
     DifferentialEquation acadodata_f1;
-    IntermediateState setc_is_1(11);
+    IntermediateState setc_is_1(13);
     setc_is_1(0) = autotime;
     setc_is_1(1) = x0_x;
     setc_is_1(2) = x0_y;
@@ -136,11 +145,13 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     setc_is_1(4) = v0_x;
     setc_is_1(5) = v0_y;
     setc_is_1(6) = v0_z;
-    setc_is_1(7) = const_L;
-    setc_is_1(8) = Fx;
-    setc_is_1(9) = Fy;
-    setc_is_1(10) = Fz;
-    CFunction cLinkModel_1( 7, quadrotor_load_dynamics_L_pos ); 
+    setc_is_1(7) = psi;
+    setc_is_1(8) = const_L;
+    setc_is_1(9) = Fx;
+    setc_is_1(10) = Fy;
+    setc_is_1(11) = Fz;
+    setc_is_1(12) = psi_dot;
+    CFunction cLinkModel_1( 8, quadrotor_load_dynamics_L_pos ); 
     acadodata_f1 << cLinkModel_1(setc_is_1); 
 
     OCP ocp1(mexinput0, mexinput1, 10);
@@ -152,11 +163,14 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     ocp1.subjectTo(AT_START, v0_x == mexinput5);
     ocp1.subjectTo(AT_START, v0_y == mexinput6);
     ocp1.subjectTo(AT_START, v0_z == mexinput7);
-    ocp1.subjectTo(AT_START, const_L == mexinput8);
+    ocp1.subjectTo(AT_START, psi == mexinput8);
+    ocp1.subjectTo(AT_START, const_L == mexinput9);
     ocp1.subjectTo((-5.00000000000000000000e-01) <= v0_x <= 5.00000000000000000000e-01);
     ocp1.subjectTo((-5.00000000000000000000e-01) <= v0_y <= 5.00000000000000000000e-01);
     ocp1.subjectTo((-5.00000000000000000000e-01) <= v0_z <= 5.00000000000000000000e-01);
-    ocp1.subjectTo(((-1.00000000000000000000e+02*Fx*Fy+2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz*x0_x-2.10000000000000008882e+00*9.80000000000000071054e+00*Fx*x0_z-4.23536400000000128330e+02*x0_x+Fx*Fy*x0_y+Fx*Fz*x0_z-pow(Fy,2.00000000000000000000e+00)*x0_x-pow(Fz,2.00000000000000000000e+00)*x0_x)/(-2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz+4.23536400000000128330e+02+pow(Fx,2.00000000000000000000e+00)+pow(Fy,2.00000000000000000000e+00)+pow(Fz,2.00000000000000000000e+00))/sqrt((1.00000000000000000000e+04-2.00000000000000000000e+02*x0_y+pow(x0_x,2.00000000000000000000e+00)+pow(x0_y,2.00000000000000000000e+00)+pow(x0_z,2.00000000000000000000e+00)))/sqrt(1/(-2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz+4.23536400000000128330e+02+pow(Fx,2.00000000000000000000e+00)+pow(Fy,2.00000000000000000000e+00)+pow(Fz,2.00000000000000000000e+00))*(-2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz+4.23536400000000128330e+02+pow(Fy,2.00000000000000000000e+00)+pow(Fz,2.00000000000000000000e+00)))-2.99999999999999988898e-01) >= 0.00000000000000000000e+00);
+    ocp1.subjectTo((-5.00000000000000000000e-01) <= psi_dot <= 5.00000000000000000000e-01);
+    ocp1.subjectTo((-1.00000000000000000000e+01) <= Fz <= 1.00000000000000000000e+01);
+    ocp1.subjectTo((-1.00000000000000000000e+02+pow(Fx,2.00000000000000000000e+00)+pow(Fy,2.00000000000000000000e+00)) <= 0.00000000000000000000e+00);
 
 
     OptimizationAlgorithm algo1(ocp1);

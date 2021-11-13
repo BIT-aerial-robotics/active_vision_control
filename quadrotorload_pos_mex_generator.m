@@ -15,8 +15,8 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
     acadoSet('problemname', 'quadrotorload_input_pos'); 
     
      %sometimes, the name of the variables induces errors, I don't know why. 
-    DifferentialState x0_x  x0_y  x0_z v0_x  v0_y  v0_z   const_L;
-    Control Fx Fy Fz;   
+    DifferentialState x0_x  x0_y  x0_z v0_x  v0_y  v0_z  psi const_L;
+    Control Fx Fy Fz psi_dot;   
 
     
     %constants:  
@@ -51,6 +51,7 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
     ocp.subjectTo( 'AT_START', v0_x ==   acado.MexInput );
     ocp.subjectTo( 'AT_START', v0_y ==   acado.MexInput );
     ocp.subjectTo( 'AT_START', v0_z ==   acado.MexInput );
+    ocp.subjectTo( 'AT_START', psi ==   acado.MexInput );
  
     ocp.subjectTo( 'AT_START', const_L  == acado.MexInput);
  
@@ -68,19 +69,20 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
       ocp.subjectTo( -0.5 <= v0_x <= 0.5);
       ocp.subjectTo( -0.5 <= v0_y <= 0.5);
       ocp.subjectTo( -0.5 <= v0_z <= 0.5);
+      ocp.subjectTo( -0.5 <= psi_dot <= 0.5);
 
     
 % input constraints:        
-%     ocp.subjectTo(  -10 <=  Fz <=  10);  %the input constraints should be set to appropriate range, here include gravity force, 
-%     horif = 100;
-%     ocp.subjectTo(    ( Fx^2  +  Fy^2  )  - horif<= 0); 
+    ocp.subjectTo(  -10 <=  Fz <=  10);  %the input constraints should be set to appropriate range, here include gravity force, 
+    horif = 100;
+    ocp.subjectTo(    ( Fx^2  +  Fy^2  )  - horif<= 0); 
 % perception constraints:    
     m_ctrl = 2.1;
     g_ctrl = 9.8;
     p_fx = 0;
     p_fy = 100;
     p_fz = 0; 
-    ocp.subjectTo( (Fy^2*p_fx + Fz^2*p_fx - Fy^2*x0_x - Fz^2*x0_x - Fx*Fy*p_fy - Fx*Fz*p_fz + g_ctrl^2*m_ctrl^2*p_fx + Fx*Fy*x0_y + Fx*Fz*x0_z - g_ctrl^2*m_ctrl^2*x0_x + Fx*g_ctrl*m_ctrl*p_fz - 2*Fz*g_ctrl*m_ctrl*p_fx - Fx*g_ctrl*m_ctrl*x0_z + 2*Fz*g_ctrl*m_ctrl*x0_x)/(((Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)/(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2))^(1/2)*(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)*(p_fx^2 - 2*p_fx*x0_x + p_fy^2 - 2*p_fy*x0_y + p_fz^2 - 2*p_fz*x0_z + x0_x^2 + x0_y^2 + x0_z^2)^(1/2)) - 0.3 >=0);
+%     ocp.subjectTo( ((Fy^2*p_fx*cos(psi) + Fz^2*p_fx*cos(psi) - Fy^2*x0_x*cos(psi) - Fz^2*x0_x*cos(psi) + Fx^2*p_fy*sin(psi) + Fz^2*p_fy*sin(psi) - Fx^2*x0_y*sin(psi) - Fz^2*x0_y*sin(psi) - Fx*Fy*p_fy*cos(psi) - Fx*Fz*p_fz*cos(psi) + g_ctrl^2*m_ctrl^2*p_fx*cos(psi) + Fx*Fy*x0_y*cos(psi) + Fx*Fz*x0_z*cos(psi) - g_ctrl^2*m_ctrl^2*x0_x*cos(psi) - Fx*Fy*p_fx*sin(psi) - Fy*Fz*p_fz*sin(psi) + g_ctrl^2*m_ctrl^2*p_fy*sin(psi) + Fx*Fy*x0_x*sin(psi) + Fy*Fz*x0_z*sin(psi) - g_ctrl^2*m_ctrl^2*x0_y*sin(psi) + Fx*g_ctrl*m_ctrl*p_fz*cos(psi) - 2*Fz*g_ctrl*m_ctrl*p_fx*cos(psi) - Fx*g_ctrl*m_ctrl*x0_z*cos(psi) + 2*Fz*g_ctrl*m_ctrl*x0_x*cos(psi) + Fy*g_ctrl*m_ctrl*p_fz*sin(psi) - 2*Fz*g_ctrl*m_ctrl*p_fy*sin(psi) - Fy*g_ctrl*m_ctrl*x0_z*sin(psi) + 2*Fz*g_ctrl*m_ctrl*x0_y*sin(psi))/(((- Fx^2*cos(psi)^2 + Fy^2*cos(psi)^2 + Fx^2 + Fz^2 + g_ctrl^2*m_ctrl^2 - Fx*Fy*sin(2*psi) - 2*Fz*g_ctrl*m_ctrl)/(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2))^(1/2)*(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)*(p_fx^2 - 2*p_fx*x0_x + p_fy^2 - 2*p_fy*x0_y + p_fz^2 - 2*p_fz*x0_z + x0_x^2 + x0_y^2 + x0_z^2)^(1/2))) - 0.3 >=0);
  
 
     algo = acado.OptimizationAlgorithm(ocp);
@@ -109,6 +111,7 @@ END_ACADO;           % Always end with "END_ACADO".
 out = quadrotorload_input_pos_RUN(0, 0.5, ...  %start time and final time 
     1, 0, 0,...
     0, 0, 0,... %feedback states of the linear velocity of the load
+    0,... %yaw angle 
     0); 
     
 
