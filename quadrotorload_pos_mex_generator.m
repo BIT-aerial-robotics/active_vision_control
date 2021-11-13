@@ -1,0 +1,120 @@
+ %This file should be run first, in order to obtain the mex file 
+
+%input: 
+%u: 5-by-1, including: 
+%time: 1-by-1, the current time, 
+%x_feedback: 4-by-1, the current feedback state of the system 
+
+close all; clear variables;
+
+
+
+
+BEGIN_ACADO;                                % Always start with "BEGIN_ACADO". 
+    
+    acadoSet('problemname', 'quadrotorload_input_pos'); 
+    
+     %sometimes, the name of the variables induces errors, I don't know why. 
+    DifferentialState x0_x  x0_y  x0_z v0_x  v0_y  v0_z   const_L;
+    Control Fx Fy Fz;   
+
+    
+    %constants:  
+    
+    %% input variables of the generated mex file: 
+    starttime = acado.MexInput;   %start time   
+	endtime = acado.MexInput;  %final time   
+   
+    
+    %% Set default objects
+    f = acado.DifferentialEquation();
+    f.linkCFunction('quadrotor_load_dynamics_L_pos.cpp', 'quadrotor_load_dynamics_L_pos');
+%     f.linkCFunction('dynamics_null.cpp', 'quadrotor_load_dynamics_L');
+    
+    %Set up optimal control problem, 
+    %start at t0, control in 40 intervals to tf
+    %parameters: 
+ 
+ 
+    ocp = acado.OCP(starttime, endtime, 10);      
+    ocp.minimizeMayerTerm(const_L);  % minimizeLagrange is not yet implemented for matlab ode calls!
+                               % but you can define another differential
+                               % state to get the same effect (L)
+ 
+
+    ocp.subjectTo( f );
+ 
+
+    ocp.subjectTo( 'AT_START', x0_x ==   acado.MexInput);
+    ocp.subjectTo( 'AT_START', x0_y ==  acado.MexInput);
+    ocp.subjectTo( 'AT_START', x0_z ==   acado.MexInput );
+    ocp.subjectTo( 'AT_START', v0_x ==   acado.MexInput );
+    ocp.subjectTo( 'AT_START', v0_y ==   acado.MexInput );
+    ocp.subjectTo( 'AT_START', v0_z ==   acado.MexInput );
+ 
+    ocp.subjectTo( 'AT_START', const_L  == acado.MexInput);
+ 
+ 
+
+% state constraints: 
+%     ocp.subjectTo(  sqrt((x0_x - 10)^2  + (x0_y -8)^2 + ( x0_z + 5 )^2  )  -2  >= 0); 
+%       ocp.subjectTo(  sqrt((x0_x - 1)^2  + (x0_y -2)^2 + ( x0_z -1 )^2  )  -1  >= 0); 
+        
+%             ocp.subjectTo(  sqrt((x0_x - 1)^2  + (x0_y -0.05)^2 + ( x0_z - 3)^2  )  -1  >= 0); 
+%              ocp.subjectTo(  sqrt((x0_x - 1.6)^2  + (x0_y -0.08)^2 + ( x0_z - 8)^2  )  -2.5  >= 0); 
+             
+%              ocp.subjectTo(  sqrt((x0_x - 1)^2  + (x0_y -0.05)^2 + ( x0_z - 5)^2  )  -2.5  >= 0); 
+%      ocp.subjectTo(  ((v0_x - 0)^2  + (v0_y -0.00)^2 + ( v0_z - 0)^2  )  -4 <= 0); 
+      ocp.subjectTo( -0.5 <= v0_x <= 0.5);
+      ocp.subjectTo( -0.5 <= v0_y <= 0.5);
+      ocp.subjectTo( -0.5 <= v0_z <= 0.5);
+
+    
+% input constraints:        
+%     ocp.subjectTo(  -10 <=  Fz <=  10);  %the input constraints should be set to appropriate range, here include gravity force, 
+%     horif = 100;
+%     ocp.subjectTo(    ( Fx^2  +  Fy^2  )  - horif<= 0); 
+% perception constraints:    
+    m_ctrl = 2.1;
+    g_ctrl = 9.8;
+    p_fx = 1;
+    p_fy = 1;
+    p_fz = 1; 
+%     ocp.subjectTo( (Fy^2*p_fx + Fz^2*p_fx - Fy^2*x0_x - Fz^2*x0_x - Fx*Fy*p_fy - Fx*Fz*p_fz + g_ctrl^2*m_ctrl^2*p_fx + Fx*Fy*x0_y + Fx*Fz*x0_z - g_ctrl^2*m_ctrl^2*x0_x + Fx*g_ctrl*m_ctrl*p_fz - 2*Fz*g_ctrl*m_ctrl*p_fx - Fx*g_ctrl*m_ctrl*x0_z + 2*Fz*g_ctrl*m_ctrl*x0_x)/(((Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)/(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2))^(1/2)*(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)*(p_fx^2 - 2*p_fx*x0_x + p_fy^2 - 2*p_fy*x0_y + p_fz^2 - 2*p_fz*x0_z + x0_x^2 + x0_y^2 + x0_z^2)^(1/2)) - 0.3 >=0);
+ 
+
+    algo = acado.OptimizationAlgorithm(ocp);
+    
+     
+    % !!
+%     algo.set( 'HESSIAN_APPROXIMATION', 'EXACT_HESSIAN' );    
+    % DO NOT USE EXACT HESSIAN WHEN LINKING TO MATLAB ODE
+    % !!
+    
+    algo.set( 'KKT_TOLERANCE', 1e-4);
+    algo.set( 'MAX_NUM_ITERATIONS', 20);
+%     algo.set( 'PRINT_SCP_METHOD_PROFILE', 'YES' );
+
+
+    
+END_ACADO;           % Always end with "END_ACADO".
+                     % This will generate a file problemname_ACADO.m. 
+                     % Run this file to get your results. You can
+                     % run the file problemname_ACADO.m as many
+                     % times as you want without having to compile again.
+
+% Run the test
+% out = quadrotorload_input_RUN(0, 1);
+
+out = quadrotorload_input_pos_RUN(0, 0.5, ...  %start time and final time 
+    0, 0, 1,...
+    0, 0, 0,... %feedback states of the linear velocity of the load
+    0); 
+    
+
+
+% u_k = out.CONTROLS(1,2:end)'; 
+
+draw_oponly;
+
+% end
