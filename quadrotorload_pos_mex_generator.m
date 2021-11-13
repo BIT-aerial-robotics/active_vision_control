@@ -77,10 +77,10 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
 % perception constraints:    
     m_ctrl = 2.1;
     g_ctrl = 9.8;
-    p_fx = 1;
-    p_fy = 1;
-    p_fz = 1; 
-%     ocp.subjectTo( (Fy^2*p_fx + Fz^2*p_fx - Fy^2*x0_x - Fz^2*x0_x - Fx*Fy*p_fy - Fx*Fz*p_fz + g_ctrl^2*m_ctrl^2*p_fx + Fx*Fy*x0_y + Fx*Fz*x0_z - g_ctrl^2*m_ctrl^2*x0_x + Fx*g_ctrl*m_ctrl*p_fz - 2*Fz*g_ctrl*m_ctrl*p_fx - Fx*g_ctrl*m_ctrl*x0_z + 2*Fz*g_ctrl*m_ctrl*x0_x)/(((Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)/(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2))^(1/2)*(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)*(p_fx^2 - 2*p_fx*x0_x + p_fy^2 - 2*p_fy*x0_y + p_fz^2 - 2*p_fz*x0_z + x0_x^2 + x0_y^2 + x0_z^2)^(1/2)) - 0.3 >=0);
+    p_fx = 0;
+    p_fy = 100;
+    p_fz = 0; 
+    ocp.subjectTo( (Fy^2*p_fx + Fz^2*p_fx - Fy^2*x0_x - Fz^2*x0_x - Fx*Fy*p_fy - Fx*Fz*p_fz + g_ctrl^2*m_ctrl^2*p_fx + Fx*Fy*x0_y + Fx*Fz*x0_z - g_ctrl^2*m_ctrl^2*x0_x + Fx*g_ctrl*m_ctrl*p_fz - 2*Fz*g_ctrl*m_ctrl*p_fx - Fx*g_ctrl*m_ctrl*x0_z + 2*Fz*g_ctrl*m_ctrl*x0_x)/(((Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)/(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2))^(1/2)*(Fx^2 + Fy^2 + Fz^2 - 2*Fz*g_ctrl*m_ctrl + g_ctrl^2*m_ctrl^2)*(p_fx^2 - 2*p_fx*x0_x + p_fy^2 - 2*p_fy*x0_y + p_fz^2 - 2*p_fz*x0_z + x0_x^2 + x0_y^2 + x0_z^2)^(1/2)) - 0.3 >=0);
  
 
     algo = acado.OptimizationAlgorithm(ocp);
@@ -107,7 +107,7 @@ END_ACADO;           % Always end with "END_ACADO".
 % out = quadrotorload_input_RUN(0, 1);
 
 out = quadrotorload_input_pos_RUN(0, 0.5, ...  %start time and final time 
-    0, 0, 1,...
+    1, 0, 0,...
     0, 0, 0,... %feedback states of the linear velocity of the load
     0); 
     

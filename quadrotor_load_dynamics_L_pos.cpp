@@ -20,12 +20,14 @@ void quadrotor_load_dynamics_L_pos( double *x, double *f,  void  *user_data ){
 	double t = x[0];
 	x0_x= x[1]; x0_y= x[2]; x0_z = x[3]; // the position of the load
 	v0_x = x[4]; v0_y = x[5]; v0_z = x[6];   //the velocity of the load
+    psi = x[7];
 	Eigen::Vector3d vL; 
 	vL << v0_x, v0_y, v0_z; 	
 
-	double const_L = x[7]; //the cost function of the optimal control
+	double const_L = x[8]; //the cost function of the optimal control
 
-	f_x = x[8]; f_y = x[9]; f_z = x[10]; 
+	f_x = x[9]; f_y = x[10]; f_z = x[11]; 
+    psi_dot = x[12];
 	//tau_x = x[23]; tau_y = x[24]; tau_z = x[25]; //the input of the system
     
     double mass_sum = 2.1;
@@ -46,7 +48,7 @@ void quadrotor_load_dynamics_L_pos( double *x, double *f,  void  *user_data ){
     Eigen::Vector3d u_gen_trans;
     u_gen_trans << 0, 0, 0;   //The force is expressed in earth frame, and does not include the gravity force. 
      
-	double delta_u =  (f_x - u_gen_trans(0) )* (f_x - u_gen_trans(0) )+ (f_y - u_gen_trans(1))* (f_y - u_gen_trans(1))  + (f_z - u_gen_trans(2))* (f_z - u_gen_trans(2)); 
+	double delta_u =  (f_x - u_gen_trans(0) )* (f_x - u_gen_trans(0) )+ (f_y - u_gen_trans(1))* (f_y - u_gen_trans(1))  + (f_z - u_gen_trans(2))* (f_z - u_gen_trans(2)) + psi_dot*psi_dot; 
 
     f[0] = v0_x; 
 	f[1] = v0_y;  
