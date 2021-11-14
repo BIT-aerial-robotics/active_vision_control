@@ -66,7 +66,7 @@ void quadrotor_load_dynamics_L_pos( double *x, double *f,  void  *user_data ){
     
         f[7] = 2*delta_x + 0.1*delta_u;   //ok 
         
-        f[7] = 2*delta_x + 0.1*delta_u;  
+        f[7] = 5*delta_x + 0.1*delta_u;  
 
     //cout << "x0: " << x[0] << endl; 
 }

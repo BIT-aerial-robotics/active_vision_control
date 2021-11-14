@@ -50,7 +50,7 @@ axis_des = [0;1.2;1]; axis_des = [1;1;0];
 axis_des = axis_des/norm(axis_des);
 R_des = expm( anti_symmetric (axis_des*(-0.6)));
 
-y0 = [[2;0.1;1];  ...  % the position 
+y0 = [[5;0.1;1];  ...  % the position 
 [0;0;0]; ... %the velocity  
 0;...%yaw angle
 ];    
