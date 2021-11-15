@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-
-=======
->>>>>>> d25f2258be33da1ce168f4cffbbbef5a5a0df300
 #include <iostream>
 #include <vector>
 #include <Eigen/Dense>

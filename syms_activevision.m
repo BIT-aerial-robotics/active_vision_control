@@ -13,6 +13,10 @@ syms ex_b_lx ex_b_ly ex_b_lz;
 syms x0_x  x0_y  x0_z; 
 p0 = [x0_x; x0_y; x0_z]; 
 
+%the velocity of the vehicle, in earth frame:
+syms v0_x v0_y v0_z;
+v0 = [v0_x; v0_y; v0_z];
+
 syms Fx Fy Fz m_ctrl g_ctrl;
 syms psi; 
 % psi = 0;

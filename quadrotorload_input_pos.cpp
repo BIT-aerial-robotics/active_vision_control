@@ -35,7 +35,7 @@
 
 USING_NAMESPACE_ACADO
 
-#include "quadrotor_load_dynamics_L_pos.cpp"
+#include "quadrotor_dynamics_L.cpp"
 #include <mex.h>
 
 
@@ -49,8 +49,8 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     mexPrintf("\nACADO Toolkit for Matlab - Developed by David Ariens and Rien Quirynen, 2009-2013 \n"); 
     mexPrintf("Support available at http://www.acadotoolkit.org/matlab \n \n"); 
 
-    if (nrhs != 10){ 
-      mexErrMsgTxt("This problem expects 10 right hand side argument(s) since you have defined 10 MexInput(s)");
+    if (nrhs != 19){ 
+      mexErrMsgTxt("This problem expects 19 right hand side argument(s) since you have defined 19 MexInput(s)");
     } 
  
     TIME autotime;
@@ -60,12 +60,21 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     DifferentialState v0_x;
     DifferentialState v0_y;
     DifferentialState v0_z;
-    DifferentialState psi;
+    DifferentialState r0_11;
+    DifferentialState r0_12;
+    DifferentialState r0_13;
+    DifferentialState r0_21;
+    DifferentialState r0_22;
+    DifferentialState r0_23;
+    DifferentialState r0_31;
+    DifferentialState r0_32;
+    DifferentialState r0_33;
+    DifferentialState cbeta;
     DifferentialState const_L;
-    Control Fx;
-    Control Fy;
-    Control Fz;
-    Control psi_dot;
+    Control omega0_x;
+    Control omega0_y;
+    Control omega0_z;
+    Control T_net;
     double *mexinput0_temp = NULL; 
     if( !mxIsDouble(prhs[0]) || mxIsComplex(prhs[0]) || !(mxGetM(prhs[0])==1 && mxGetN(prhs[0])==1) ) { 
       mexErrMsgTxt("Input 0 must be a noncomplex scalar double.");
@@ -136,8 +145,71 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     mexinput9_temp = mxGetPr(prhs[9]); 
     double mexinput9 = *mexinput9_temp; 
 
+    double *mexinput10_temp = NULL; 
+    if( !mxIsDouble(prhs[10]) || mxIsComplex(prhs[10]) || !(mxGetM(prhs[10])==1 && mxGetN(prhs[10])==1) ) { 
+      mexErrMsgTxt("Input 10 must be a noncomplex scalar double.");
+    } 
+    mexinput10_temp = mxGetPr(prhs[10]); 
+    double mexinput10 = *mexinput10_temp; 
+
+    double *mexinput11_temp = NULL; 
+    if( !mxIsDouble(prhs[11]) || mxIsComplex(prhs[11]) || !(mxGetM(prhs[11])==1 && mxGetN(prhs[11])==1) ) { 
+      mexErrMsgTxt("Input 11 must be a noncomplex scalar double.");
+    } 
+    mexinput11_temp = mxGetPr(prhs[11]); 
+    double mexinput11 = *mexinput11_temp; 
+
+    double *mexinput12_temp = NULL; 
+    if( !mxIsDouble(prhs[12]) || mxIsComplex(prhs[12]) || !(mxGetM(prhs[12])==1 && mxGetN(prhs[12])==1) ) { 
+      mexErrMsgTxt("Input 12 must be a noncomplex scalar double.");
+    } 
+    mexinput12_temp = mxGetPr(prhs[12]); 
+    double mexinput12 = *mexinput12_temp; 
+
+    double *mexinput13_temp = NULL; 
+    if( !mxIsDouble(prhs[13]) || mxIsComplex(prhs[13]) || !(mxGetM(prhs[13])==1 && mxGetN(prhs[13])==1) ) { 
+      mexErrMsgTxt("Input 13 must be a noncomplex scalar double.");
+    } 
+    mexinput13_temp = mxGetPr(prhs[13]); 
+    double mexinput13 = *mexinput13_temp; 
+
+    double *mexinput14_temp = NULL; 
+    if( !mxIsDouble(prhs[14]) || mxIsComplex(prhs[14]) || !(mxGetM(prhs[14])==1 && mxGetN(prhs[14])==1) ) { 
+      mexErrMsgTxt("Input 14 must be a noncomplex scalar double.");
+    } 
+    mexinput14_temp = mxGetPr(prhs[14]); 
+    double mexinput14 = *mexinput14_temp; 
+
+    double *mexinput15_temp = NULL; 
+    if( !mxIsDouble(prhs[15]) || mxIsComplex(prhs[15]) || !(mxGetM(prhs[15])==1 && mxGetN(prhs[15])==1) ) { 
+      mexErrMsgTxt("Input 15 must be a noncomplex scalar double.");
+    } 
+    mexinput15_temp = mxGetPr(prhs[15]); 
+    double mexinput15 = *mexinput15_temp; 
+
+    double *mexinput16_temp = NULL; 
+    if( !mxIsDouble(prhs[16]) || mxIsComplex(prhs[16]) || !(mxGetM(prhs[16])==1 && mxGetN(prhs[16])==1) ) { 
+      mexErrMsgTxt("Input 16 must be a noncomplex scalar double.");
+    } 
+    mexinput16_temp = mxGetPr(prhs[16]); 
+    double mexinput16 = *mexinput16_temp; 
+
+    double *mexinput17_temp = NULL; 
+    if( !mxIsDouble(prhs[17]) || mxIsComplex(prhs[17]) || !(mxGetM(prhs[17])==1 && mxGetN(prhs[17])==1) ) { 
+      mexErrMsgTxt("Input 17 must be a noncomplex scalar double.");
+    } 
+    mexinput17_temp = mxGetPr(prhs[17]); 
+    double mexinput17 = *mexinput17_temp; 
+
+    double *mexinput18_temp = NULL; 
+    if( !mxIsDouble(prhs[18]) || mxIsComplex(prhs[18]) || !(mxGetM(prhs[18])==1 && mxGetN(prhs[18])==1) ) { 
+      mexErrMsgTxt("Input 18 must be a noncomplex scalar double.");
+    } 
+    mexinput18_temp = mxGetPr(prhs[18]); 
+    double mexinput18 = *mexinput18_temp; 
+
     DifferentialEquation acadodata_f1;
-    IntermediateState setc_is_1(13);
+    IntermediateState setc_is_1(22);
     setc_is_1(0) = autotime;
     setc_is_1(1) = x0_x;
     setc_is_1(2) = x0_y;
@@ -145,13 +217,22 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     setc_is_1(4) = v0_x;
     setc_is_1(5) = v0_y;
     setc_is_1(6) = v0_z;
-    setc_is_1(7) = psi;
-    setc_is_1(8) = const_L;
-    setc_is_1(9) = Fx;
-    setc_is_1(10) = Fy;
-    setc_is_1(11) = Fz;
-    setc_is_1(12) = psi_dot;
-    CFunction cLinkModel_1( 8, quadrotor_load_dynamics_L_pos ); 
+    setc_is_1(7) = r0_11;
+    setc_is_1(8) = r0_12;
+    setc_is_1(9) = r0_13;
+    setc_is_1(10) = r0_21;
+    setc_is_1(11) = r0_22;
+    setc_is_1(12) = r0_23;
+    setc_is_1(13) = r0_31;
+    setc_is_1(14) = r0_32;
+    setc_is_1(15) = r0_33;
+    setc_is_1(16) = cbeta;
+    setc_is_1(17) = const_L;
+    setc_is_1(18) = omega0_x;
+    setc_is_1(19) = omega0_y;
+    setc_is_1(20) = omega0_z;
+    setc_is_1(21) = T_net;
+    CFunction cLinkModel_1( 17, quadrotor_dynamics_L ); 
     acadodata_f1 << cLinkModel_1(setc_is_1); 
 
     OCP ocp1(mexinput0, mexinput1, 10);
@@ -163,15 +244,20 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     ocp1.subjectTo(AT_START, v0_x == mexinput5);
     ocp1.subjectTo(AT_START, v0_y == mexinput6);
     ocp1.subjectTo(AT_START, v0_z == mexinput7);
-    ocp1.subjectTo(AT_START, psi == mexinput8);
-    ocp1.subjectTo(AT_START, const_L == mexinput9);
+    ocp1.subjectTo(AT_START, r0_11 == mexinput8);
+    ocp1.subjectTo(AT_START, r0_12 == mexinput9);
+    ocp1.subjectTo(AT_START, r0_13 == mexinput10);
+    ocp1.subjectTo(AT_START, r0_21 == mexinput11);
+    ocp1.subjectTo(AT_START, r0_22 == mexinput12);
+    ocp1.subjectTo(AT_START, r0_23 == mexinput13);
+    ocp1.subjectTo(AT_START, r0_31 == mexinput14);
+    ocp1.subjectTo(AT_START, r0_32 == mexinput15);
+    ocp1.subjectTo(AT_START, r0_33 == mexinput16);
+    ocp1.subjectTo(AT_START, cbeta == mexinput17);
+    ocp1.subjectTo(AT_START, const_L == mexinput18);
     ocp1.subjectTo((-5.00000000000000000000e-01) <= v0_x <= 5.00000000000000000000e-01);
     ocp1.subjectTo((-5.00000000000000000000e-01) <= v0_y <= 5.00000000000000000000e-01);
     ocp1.subjectTo((-5.00000000000000000000e-01) <= v0_z <= 5.00000000000000000000e-01);
-    ocp1.subjectTo((-5.00000000000000000000e-01) <= psi_dot <= 5.00000000000000000000e-01);
-    ocp1.subjectTo((-1.00000000000000000000e+01) <= Fz <= 1.00000000000000000000e+01);
-    ocp1.subjectTo((-1.00000000000000000000e+02+pow(Fx,2.00000000000000000000e+00)+pow(Fy,2.00000000000000000000e+00)) <= 0.00000000000000000000e+00);
-    ocp1.subjectTo(((-1.00000000000000000000e+02*2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz*sin(psi)-1.00000000000000000000e+02*Fx*Fy*cos(psi)+1.00000000000000000000e+02*pow(Fx,2.00000000000000000000e+00)*sin(psi)+1.00000000000000000000e+02*pow(Fz,2.00000000000000000000e+00)*sin(psi)+2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz*cos(psi)*x0_x+2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz*sin(psi)*x0_y-2.10000000000000008882e+00*9.80000000000000071054e+00*Fx*cos(psi)*x0_z-2.10000000000000008882e+00*9.80000000000000071054e+00*Fy*sin(psi)*x0_z-4.23536400000000128330e+02*cos(psi)*x0_x-4.23536400000000128330e+02*sin(psi)*x0_y+4.23536400000000139698e+04*sin(psi)+Fx*Fy*cos(psi)*x0_y+Fx*Fy*sin(psi)*x0_x+Fx*Fz*cos(psi)*x0_z+Fy*Fz*sin(psi)*x0_z-cos(psi)*pow(Fy,2.00000000000000000000e+00)*x0_x-cos(psi)*pow(Fz,2.00000000000000000000e+00)*x0_x-pow(Fx,2.00000000000000000000e+00)*sin(psi)*x0_y-pow(Fz,2.00000000000000000000e+00)*sin(psi)*x0_y)/(-2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz+4.23536400000000128330e+02+pow(Fx,2.00000000000000000000e+00)+pow(Fy,2.00000000000000000000e+00)+pow(Fz,2.00000000000000000000e+00))/sqrt(((-pow(Fx,2.00000000000000000000e+00))*pow(cos(psi),2.00000000000000000000e+00)-2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz+4.23536400000000128330e+02-Fx*Fy*sin(2.00000000000000000000e+00*psi)+pow(Fx,2.00000000000000000000e+00)+pow(Fy,2.00000000000000000000e+00)*pow(cos(psi),2.00000000000000000000e+00)+pow(Fz,2.00000000000000000000e+00))/(-2.00000000000000000000e+00*2.10000000000000008882e+00*9.80000000000000071054e+00*Fz+4.23536400000000128330e+02+pow(Fx,2.00000000000000000000e+00)+pow(Fy,2.00000000000000000000e+00)+pow(Fz,2.00000000000000000000e+00)))/sqrt((1.00000000000000000000e+04-2.00000000000000000000e+02*x0_y+pow(x0_x,2.00000000000000000000e+00)+pow(x0_y,2.00000000000000000000e+00)+pow(x0_z,2.00000000000000000000e+00)))-8.00000000000000044409e-01) >= 0.00000000000000000000e+00);
 
 
     OptimizationAlgorithm algo1(ocp1);
