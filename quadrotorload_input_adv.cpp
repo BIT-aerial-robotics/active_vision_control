@@ -255,9 +255,10 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     ocp1.subjectTo(AT_START, r0_33 == mexinput16);
     ocp1.subjectTo(AT_START, cbeta == mexinput17);
     ocp1.subjectTo(AT_START, const_L == mexinput18);
-    ocp1.subjectTo((-1.50000000000000000000e+00) <= omega0_x <= 1.50000000000000000000e+00);
+    ocp1.subjectTo((-1.00000000000000000000e+00) <= omega0_x <= 1.00000000000000000000e+00);
     ocp1.subjectTo((-1.50000000000000000000e+00) <= omega0_y <= 1.50000000000000000000e+00);
     ocp1.subjectTo((-1.50000000000000000000e+00) <= omega0_z <= 1.50000000000000000000e+00);
+    ocp1.subjectTo(cbeta >= 5.00000000000000000000e-01);
 
 
     OptimizationAlgorithm algo1(ocp1);

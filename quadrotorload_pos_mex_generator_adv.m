@@ -77,11 +77,11 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
 %       ocp.subjectTo( -2.5 <= v0_z <= 2.5);
 %       ocp.subjectTo( -0.5 <= psi_dot <= 0.5);
 
-      ocp.subjectTo( -1.5 <= omega0_x <= 1.5);
+      ocp.subjectTo( -1 <= omega0_x <= 1);
       ocp.subjectTo( -1.5 <= omega0_y <= 1.5);
       ocp.subjectTo( -1.5 <= omega0_z <= 1.5);
-
-    
+      ocp.subjectTo( cbeta >= 0.5);
+      
 % input constraints:        
 %     ocp.subjectTo(  -10 <=  Fz <=  10);  %the input constraints should be set to appropriate range, here include gravity force, 
 %     horif = 100;
@@ -122,7 +122,7 @@ out = quadrotorload_input_adv_RUN(0, 0.5, ...  %start time and final time
     1, 0, 0,...
     0, 0, 0,... %feedback states of the linear velocity of the load
     1, 0, 0, 0, 1, 0,  0, 0, 1,...     %feedback states of rotation matrix 
-    0,... %cosbeta
+    1,... %cosbeta
     0); 
     
 

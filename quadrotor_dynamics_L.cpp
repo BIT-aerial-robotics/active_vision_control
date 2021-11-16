@@ -23,8 +23,7 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
 	double t = x[0];
 	x0_x= x[1]; x0_y= x[2]; x0_z = x[3]; // the position of the load
 	v0_x = x[4]; v0_y = x[5]; v0_z = x[6];   //the velocity of the load
-    //double psi = x[7];
-	Eigen::Vector3d vL; 
+   	Eigen::Vector3d vL; 
 	vL << v0_x, v0_y, v0_z; 
     
     Eigen::Vector3d omegaL;
@@ -62,7 +61,7 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
     
     double p_fx, p_fy, p_fz;
     p_fx = 10;
-    p_fy = 0;  
+    p_fy = 1;  
     p_fz = 0;
     
     Eigen::Vector3d fbody; 
@@ -103,7 +102,7 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
     deltaR = R0d.transpose()*R0; 
     double R_err = 0.5* ((1-deltaR(0,0))+ (1-deltaR(1,1)) + (1-deltaR(2,2)));    
     
-    double delta_x = 5*p_err + 2*v_err + 80*R_err; //the coefficient of the volocity can also be adjusted. 	
+    double delta_x = 5*p_err + 2*v_err + 80*R_err +  10* (cosbeta-1) ; //the coefficient of the volocity can also be adjusted. 	
 
  
     Eigen::Vector3d u_gen_trans;
@@ -129,7 +128,7 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
 	f[13] = R0_dot(2,1);
 	f[14] = R0_dot(2,2);
 
-	f[15] = 0;  
+	f[15] = cbeta_dot;  
 
     f[16] = 3*delta_x + 0.01*delta_u;   
     f[16] = 10*delta_x + 0.05*delta_u;  

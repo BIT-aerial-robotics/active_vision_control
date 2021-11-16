@@ -15,6 +15,7 @@
  
  gamma_nom = zeros(length(t), 3);
  gamma_ref = zeros(length(t), 3);
+ cosbeta_arr = zeros(length(t), 1);
  
      for i =1:length(t)
          R_sen_i = y1_nom(i,7:15);
@@ -25,6 +26,25 @@
 %         norm_R_array(i) = norm(R_i-R_d_i);
         gamma_nom(i,:) = (Euler_angles(R_i))';
         gamma_ref(i,:) = (Euler_angles(R_0))';     
+        
+        r0_11 = y1_nom(i, 7);
+        r0_12 = y1_nom(i, 8);
+    r0_13 = y1_nom(i, 9);
+    r0_21 = y1_nom(i, 10);
+    r0_22 = y1_nom(i, 11);
+    r0_23 = y1_nom(i, 12);
+    r0_31 = y1_nom(i, 13);
+    r0_32 = y1_nom(i, 14);
+    r0_33 = y1_nom(i, 15);
+    
+    %the position of the vehicle:
+    x0_x = y1_nom(i, 1); 
+    x0_y = y1_nom(i, 2);  
+    x0_z = y1_nom(i, 3);
+ 
+    p_fx = 10; p_fy =1;  p_fz = 0;
+    cosbeta_arr(i) = (p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2);
+     
      end
      
      
@@ -111,6 +131,14 @@ figure(7);        %net thrust
 plot(t,T_net),grid;
 ylabel('FORCE(N)');
 title('force');
+xlabel('time(s)');
+% legend('F_c_o_m_x','F_c_o_m_y','F_c_o_m_z');
+
+figure(8);        %net thrust
+% subplot(2,1,1);
+plot(t,cosbeta_arr),grid;
+ylabel('\cos \beta ');
+xlabel('time(s)');
 % legend('F_c_o_m_x','F_c_o_m_y','F_c_o_m_z');
 
 

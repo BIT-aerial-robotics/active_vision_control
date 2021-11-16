@@ -1,5 +1,5 @@
 %% Perception awareness MPC for multiple aerial vehicle systems
-%Chuanbeibei Shi
+%Chuanbeibei Shi, Yushu Yu
 % ------------------------------------------------
 % The corresponding data of system trajectory
 % is stored in mat file 
@@ -50,7 +50,7 @@ axis_des = [0;1.2;1]; axis_des = [1;1;0];
 axis_des = axis_des/norm(axis_des);
 R_des = expm( anti_symmetric (axis_des*(-0.6)));
 
-y0 = [[10;0.4;0.3];  ...  % the position 
+y0 = [[6;0.4; 1];  ...  % the position 
 [0;0;0]; ... %the velocity  
 [1;0;0;0;1;0;0;0;1]; ...%the rotation matrix
 ];    
@@ -144,22 +144,39 @@ count_control = count_control+1;
  
 dt = 0.001; 
 if (scale==0)
-%run mpc  
-  
+%run mpc   
  
 %     L_0 = y_nom(1)^2 +  y_nom(2)^2 + y_nom(3)^2; 
     
     hori_T = 0.7;
     
+    r0_11 = y_nom(7);
+    r0_12 = y_nom(8);
+    r0_13 = y_nom(9);
+    r0_21 = y_nom(10);
+    r0_22 = y_nom(11);
+    r0_23 = y_nom(12);
+    r0_31 = y_nom(13);
+    r0_32 = y_nom(14);
+    r0_33 = y_nom(15);
+    
+    %the position of the vehicle:
+    x0_x = y_nom(1); 
+    x0_y = y_nom(2);  
+    x0_z = y_nom(3);
+ 
+    p_fx = 10; p_fy =1;  p_fz = 0;
+    cosbeta = (p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2);
+     
     out = quadrotorload_input_adv_RUN(t, t+hori_T, ...  %start time and final time 
     y_nom(1), y_nom(2), y_nom(3),...
     y_nom(4), y_nom(5), y_nom(6),... %feedback states of the linear velocity of the load
     y_nom(7), y_nom(8), y_nom(9), y_nom(10), y_nom(11), y_nom(12), y_nom(13), y_nom(14), y_nom(15),...     %feedback states of rotation matrix 
-    1,... %cosbeta
+    cosbeta,... %cosbeta
     0); 
 
     mass = 2.1;
-    g_ =9.8;
+    g_ = 9.8;
 
     wrench_0 = out.CONTROLS(1, 2:5)'; %control from MPC: 3d force and yaw rate
     Tminusmg = wrench_0(4) + mass*g_;
@@ -190,8 +207,6 @@ else
 end
 
 wrench_nom = wrench_0; 
-
-
 
 %feedback control on the wrench of load, then transform wrench to the
 %thrust vector:
@@ -264,179 +279,6 @@ else
 end
     u = wrench_0;
     thrust_vector = u;
-
-% %calculate the thrust_vector array from the body wrench:
-% global rou1_x rou1_y rou1_z; 
-% global rou2_x rou2_y rou2_z; 
-% global rou3_x rou3_y rou3_z; 
-% global rou4_x rou4_y rou4_z; 
-% global rou5_x rou5_y rou5_z; 
-% global rou6_x rou6_y rou6_z; 
-% rou_i = [ rou1_x rou1_y rou1_z; 
-%  rou2_x rou2_y rou2_z; 
-%  rou3_x rou3_y rou3_z; 
-%  rou4_x rou4_y rou4_z; 
-%  rou5_x rou5_y rou5_z; 
-%  rou6_x rou6_y rou6_z];
-% rou_i = rou_i';   
-% input_equi_allocation = [eye(3,3), eye(3,3), eye(3,3), eye(3,3), eye(3,3), eye(3,3);...
-%     anti_symmetric(rou_i(:,1)) , anti_symmetric(rou_i(:,2)) , anti_symmetric(rou_i(:,3)) , anti_symmetric(rou_i(:,4)) ,anti_symmetric(rou_i(:,5)) , anti_symmetric(rou_i(:,6)) ]; 
-% % input_equi = -input_equi_allocation*thrust_matrix;   %the z_axis of the thrust_matrix is in the oppsite direction of the body z-axis. 
-% 
-% thrust_vector_ini =  pinv(input_equi_allocation)*wrench_0;  %notice the wrech_0 is expressed in body frame of the laod
-% 
-% 
-% % Aeq = input_equi_allocation; 
-% % beq = wrench_0;
-% % thrust_vector = fmincon(@(x) x'*x,thrust_vector_ini,[],[],Aeq,beq,[],[], @(x) cone_constraint(x));
-% thrust_vector = thrust_vector_ini;
-% 
-% RL=[y(7), y(8), y(9); ...
-%    y(10), y(11), y(12);...
-%    y(13), y(14), y(15)];  %the rotation matrix 
-% 
-% %the attitude controller: 
-% %convert the thrust vector into the thrust magnitute and the attitude of
-% %each quadrotor: 
-% T_array = zeros(6,1);
-% global Rd_array; 
-% Rd_array = zeros(3,3,6); 
-% tau_array = zeros(3,6);
-% tau_array1d = zeros(18,1); 
-% 
-% global R_ref; 
-% global Ti_ref;
-% % R_ref = zeros(3,3,6,n_time); 
-% for i = 1:6
-%     psi = 0;  %the yaw angle command
-% 
-%     F_i = thrust_vector(3*(i-1)+1:3*(i-1)+3);  
-%     F_i =  RL*F_i; %note the force is expressed in body-fixed frame, should transform it into the inertia frame in order to obtain the commanded attitude of each quadrotor 
-%     T_mag_i = norm(F_i); 
-% 
-%     %second method, inner product:
-%     % T= ([0; 0; m_ctrl*g_ctrl] -F)'* R(:,3);
-% 
-%     z_b= -(F_i )/ T_mag_i;   
-% 
-%     a_1= [cos(psi); sin(psi); 0];
-%     y_b = cross(z_b, a_1) / norm(cross(z_b, a_1));  
-%     x_b = cross(y_b, z_b);  
-%     x_b  = x_b/norm(x_b);
-%     
-%     Rd_i = [x_b, y_b, z_b]; %the desired attitude commands
-%     
-%     %put the commanded data into the arrays:
-%     T_array(i) = T_mag_i; 
-%     
-%     %tunning
-% %     T_array(i) = 1; 
-% %     Rd_i = eye(3,3); 
-% %     
-% %      Rd_i =   [0.9950   -0.0998         0
-% %     0.0998    0.9950         0
-% %          0         0    1.0000];
-% %      
-% %      Rd_i = expm(anti_symmetric(1.55*t*[1;2;3]));
-%     global R_ref;
-%      R_ref(:,:,i,count_control) = Rd_i;
-%      Ti_ref(i,count_control) = T_array(i);
-%     
-%     Rd_array(:,:,i) = Rd_i;     
-% %%%%%%%%%% filter %%%%%%%%%%%%%%%%%%
-% 	global Rd_m1; 
-%     global Rd_m2; 
-%     global Rd_lasttime; 
-%     
-%     omega_n = 20; xi_ = 0.707;   omega_n = 10; xi_ = 1.414; 
-%     a_1_in_trans = omega_n^2; 
-%     a_2_in_trans  = 2*xi_*omega_n; 
-%     Rd_m2(:,:,i)= (a_1_in_trans *Rd_i- a_1_in_trans *Rd_m1(:,:,i) -a_2_in_trans *Rd_m2(:,:,i))*dt+Rd_m2(:,:,i);
-%     Rd_m1(:,:,i) = Rd_m2(:,:,i) * dt + Rd_m1(:,:,i); 
-% %%%%%%%%%%filter finished %%%%%%%%%%%  
-% 
-% %%%%%%%%% start the derivative %%%%%%%%%%%%%
-%     R_dot = (Rd_m1(:,:,i) - Rd_lasttime(:,:,i))/dt; 
-%     Rd_lasttime(:,:,i) = Rd_m1(:,:,i); 
-% %%%%%%%%% end the derivative %%%%%%%%%%%%%
-% 
-% %%the reference angular velocity from the derivative of the rotation
-% %%matrix: 
-%     omegad_i_hat = Rd_i'* R_dot;
-%     omegad = [omegad_i_hat(3,2);omegad_i_hat(1,3);omegad_i_hat(2,1)];
-%      
-%     %the sensed rotaion matrix and angular velocity of each quadrotor: 
-%     R_vector_i = y( 9*(i-1)+19:9*(i-1)+27); 
-%     omega_i_vector = y( 3*(i-1)+19+9*6:3*(i-1)+21+9*6);
-%     R_i = [ R_vector_i(1), R_vector_i(2), R_vector_i(3); R_vector_i(4), R_vector_i(5), R_vector_i(6); R_vector_i(7), R_vector_i(8), R_vector_i(9)];
-%     
-%     %the attitude error of each quadrotor: 
-%     eR_hat = Rd_i'*R_i-R_i'*Rd_i;
-%     eR = [eR_hat(3,2);eR_hat(1,3);eR_hat(2,1)];
-%     eR = eR/2;
-%     global errRint; %the integer of the attitude error
-%     global erromegaint; %the integer of the angualar velocity 
-%     errRint(:,i) = eR*dt + errRint(:,i); 
-%     
-%     omegan1_shape_roll = 3;  omegan2_shape_pitch = 3;  omegan3_shape_yaw =3; 
-%     omegan1_shape_roll = 5;  omegan2_shape_pitch = 5;  omegan3_shape_yaw = 5; 
-%     omegan1_shape_roll = 2;  omegan2_shape_pitch = 2;  omegan3_shape_yaw = 2; 
-% 	xi1_shape_roll = 1.414; xi2_pitch = 1.414;  xi3_shape_yaw = 1.414; 
-% 
-%     KI =[[ omegan1_shape_roll^2,          0,          0]
-%     [          0, omegan2_shape_pitch^2,          0]
-%     [          0,          0, omegan3_shape_yaw^2]];
-% 
-%      Kp =[[ 2*omegan1_shape_roll*xi1_shape_roll,            0,           -0]
-%     [           -0, 2*omegan2_shape_pitch*xi2_pitch,            0]
-%     [            0,           -0, 2*omegan3_shape_yaw*xi3_shape_yaw]];  
-% 
-%     omegae= -KI*errRint(:,i) - Kp*eR; 
-%     % omegae = omegae - 0.5* (abs(err)).^(0.7).*sign(err); %becaeful, may induce vibration
-%     omga_com = omegad + omegae; 
-%     
-%     %%%%%%%%%% filter %%%%%%%%%%%%%%%%%%
-%     global omegad_m1; 
-%     global omegad_m2; 
-%     global omegad_lasttime; 
-% 
-%     omega_n = 20; xi_ = 0.707;  omega_n = 10; xi_ = 1.414;
-%     omega_n = 10; xi_ = 1.414;
-%     a1_omegad = omega_n^2; 
-%     a2_omegad  = 2*xi_*omega_n;  
-%     omegad_m2(:,i) = (a1_omegad *omga_com - a1_omegad *omegad_m1(:,i) -a2_omegad *omegad_m2(:,i))*dt+omegad_m2(:,i);
-%     omegad_m1(:,i) = omegad_m2(:,i) * dt + omegad_m1(:,i); 
-%     %%%%%%%%%%filter finished %%%%%%%%%%%  
-% 
-%     %%the derivative of the angular velocity: 
-%     omegad_dot  = (omegad_m1(:,i) - omegad_lasttime(:,i))/dt; 
-%     omegad_lasttime(:,i) = omegad_m1(:,i); 
-% 
-%     global I1_x I1_y I1_z;  
-%     global I2_x I2_y I2_z;  
-%     global I3_x I3_y I3_z;   
-%     global I4_x I4_y I4_z;   
-%     global I5_x I5_y I5_z;   
-%     global I6_x I6_y I6_z;   
-% 
-%     %allocate the inertia parameters to the total matrix of In in this program 
-%     I_n(:,:,1) = diag([ I1_x I1_y I1_z]); 
-%     I_n(:,:,2) = diag([ I2_x I2_y I2_z]); 
-%     I_n(:,:,3) = diag([ I3_x I3_y I3_z]); 
-%     I_n(:,:,4) = diag([ I4_x I4_y I4_z]); 
-%     I_n(:,:,5) = diag([ I5_x I5_y I5_z]); 
-%     I_n(:,:,6) = diag([ I6_x I6_y I6_z]); 
-%     omega_err = omega_i_vector - omga_com; 
-% 
-%     k_omega = 40;
-%     k_omega = 20;
-%     tau_err_regu = -k_omega *omega_err; 
-%     tau_d_i = I_n(:,:,i)*(omegad_dot + tau_err_regu + cross( omega_i_vector, I_n(:,:,i)*omega_i_vector) );  
-%         tau_array(:,i) = tau_d_i; 
-%         tau_array1d(3*(i-1)+1: 3*(i-1)+3) = tau_d_i; 
-% end
-
-%     u = [T_array; tau_array1d]; 
 
 scale = scale+1;
 if (scale == 20)  %tune the sampling time
