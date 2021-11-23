@@ -60,8 +60,8 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
     double g_ = 9.8;
     
     double p_fx, p_fy, p_fz;
-    p_fx = 10;
-    p_fy = 1;  
+    p_fx = 5;
+    p_fy = 10;  
     p_fz = 0;
     
     Eigen::Vector3d fbody; 
@@ -91,7 +91,7 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
 	double p_err = x0_x*x0_x + x0_y*x0_y + x0_z*x0_z; 
     double v_err = v0_x*v0_x + v0_y*v0_y + v0_z*v0_z; 
     //double yaw_err = psi*psi;
-    
+    double cbeta_err = (cosbeta-1)*(cosbeta-1);
     
     Eigen::Matrix3d R0d; //the desired rotation matrix
     R0d << 1, 0, 0,
@@ -100,9 +100,10 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
     
     Eigen::Matrix3d deltaR; 
     deltaR = R0d.transpose()*R0; 
-    double R_err = 0.5* ((1-deltaR(0,0))+ (1-deltaR(1,1)) + (1-deltaR(2,2)));    
+    //double R_err = 0.5* ((1-deltaR(0,0))+ (1-deltaR(1,1)) + (1-deltaR(2,2)));  
+    double R_err = 0.5* ( (1-deltaR(2,2)));   
     
-    double delta_x = 5*p_err + 2*v_err + 80*R_err +  10* (cosbeta-1) ; //the coefficient of the volocity can also be adjusted. 	
+    double delta_x = 5*p_err + 2*v_err + 80*R_err +  200* cbeta_err; //the coefficient of the volocity can also be adjusted. 	
 
  
     Eigen::Vector3d u_gen_trans;

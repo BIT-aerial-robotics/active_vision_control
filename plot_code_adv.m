@@ -29,9 +29,9 @@
         
         r0_11 = y1_nom(i, 7);
         r0_12 = y1_nom(i, 8);
-    r0_13 = y1_nom(i, 9);
-    r0_21 = y1_nom(i, 10);
-    r0_22 = y1_nom(i, 11);
+        r0_13 = y1_nom(i, 9);
+        r0_21 = y1_nom(i, 10);
+        r0_22 = y1_nom(i, 11);
     r0_23 = y1_nom(i, 12);
     r0_31 = y1_nom(i, 13);
     r0_32 = y1_nom(i, 14);
@@ -42,7 +42,7 @@
     x0_y = y1_nom(i, 2);  
     x0_z = y1_nom(i, 3);
  
-    p_fx = 10; p_fy =1;  p_fz = 0;
+    p_fx = 5; p_fy =10;  p_fz = 0;
     cosbeta_arr(i) = (p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2);
      
      end
@@ -137,7 +137,7 @@ xlabel('time(s)');
 figure(8);        %net thrust
 % subplot(2,1,1);
 plot(t,cosbeta_arr),grid;
-ylabel('\cos \beta ');
+ylabel('cos \beta ');
 xlabel('time(s)');
 % legend('F_c_o_m_x','F_c_o_m_y','F_c_o_m_z');
 

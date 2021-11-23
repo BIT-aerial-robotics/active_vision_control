@@ -64,12 +64,7 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
     ocp.subjectTo( 'AT_START', const_L  == acado.MexInput);
  
     % state constraints: 
-%     ocp.subjectTo(  sqrt((x0_x - 10)^2  + (x0_y -8)^2 + ( x0_z + 5 )^2  )  -2  >= 0); 
-%       ocp.subjectTo(  sqrt((x0_x - 1)^2  + (x0_y -2)^2 + ( x0_z -1 )^2  )  -1  >= 0); 
-        
-%             ocp.subjectTo(  sqrt((x0_x - 1)^2  + (x0_y -0.05)^2 + ( x0_z - 3)^2  )  -1  >= 0); 
-%              ocp.subjectTo(  sqrt((x0_x - 1.6)^2  + (x0_y -0.08)^2 + ( x0_z - 8)^2  )  -2.5  >= 0); 
-             
+
 %              ocp.subjectTo(  sqrt((x0_x - 1)^2  + (x0_y -0.05)^2 + ( x0_z - 5)^2  )  -2.5  >= 0); 
 %      ocp.subjectTo(  ((v0_x - 0)^2  + (v0_y -0.00)^2 + ( v0_z - 0)^2  )  -4 <= 0); 
 %       ocp.subjectTo( -2.5 <= v0_x <= 2.5);
@@ -77,10 +72,13 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
 %       ocp.subjectTo( -2.5 <= v0_z <= 2.5);
 %       ocp.subjectTo( -0.5 <= psi_dot <= 0.5);
 
-      ocp.subjectTo( -1 <= omega0_x <= 1);
-      ocp.subjectTo( -1.5 <= omega0_y <= 1.5);
-      ocp.subjectTo( -1.5 <= omega0_z <= 1.5);
-      ocp.subjectTo( cbeta >= 0.5);
+      ocp.subjectTo( -0.5 <= omega0_x <= 0.5);
+      ocp.subjectTo( -0.5 <= omega0_y <= 0.5);
+      ocp.subjectTo( -1 <= omega0_z <= 1);
+%       ocp.subjectTo( cbeta >= 0.5);
+
+      ocp.subjectTo(  atan(r0_32/r0_33) <= pi/6);
+      ocp.subjectTo( -asin(r0_31) <= pi/6);
       
 % input constraints:        
 %     ocp.subjectTo(  -10 <=  Fz <=  10);  %the input constraints should be set to appropriate range, here include gravity force, 

@@ -50,9 +50,9 @@ axis_des = [0;1.2;1]; axis_des = [1;1;0];
 axis_des = axis_des/norm(axis_des);
 R_des = expm( anti_symmetric (axis_des*(-0.6)));
 
-y0 = [[6;0.4; 1];  ...  % the position 
+y0 = [[10;0.4; 1];  ...  % the position 
 [0;0;0]; ... %the velocity  
-[1;0;0;0;1;0;0;0;1]; ...%the rotation matrix
+[0;-1;0;1;0;0;0;0;1]; ...%the rotation matrix
 ];    
 
 global t_ctrl; 
@@ -165,7 +165,7 @@ if (scale==0)
     x0_y = y_nom(2);  
     x0_z = y_nom(3);
  
-    p_fx = 10; p_fy =1;  p_fz = 0;
+    p_fx = 5; p_fy =10;  p_fz = 0;
     cosbeta = (p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2);
      
     out = quadrotorload_input_adv_RUN(t, t+hori_T, ...  %start time and final time 
