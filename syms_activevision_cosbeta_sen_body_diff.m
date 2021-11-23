@@ -54,7 +54,7 @@ R_b = simplify(R_b);
 R_b_col = [r0_11; r0_12; r0_13; r0_21; r0_22; r0_23; r0_31; r0_32; r0_33];
 
 % syms omega1 omega2 omega3; 
-syms omega0_x omega0_y omega0_z
+syms omega0_x omega0_y omega0_z;
 omega0 = [omega0_x; omega0_y; omega0_z];
 
 R_b_dot = R_b*anti_symmetric(omega0);
@@ -84,7 +84,7 @@ p_f_c = H_b_c*p_f_b;
 p_f_c = simplify(p_f_c);
 
 %the position of feature, in lidar frame 
-p_f_l = H_b_c*p_f_b;
+p_f_l = H_b_l*p_f_b;
 p_f_l = simplify(p_f_l);
 
 
@@ -107,4 +107,7 @@ cosbeta_l = simplify(cosbeta_l);
 cosbeta_dot_l = jacobian(cosbeta_l, [p0; R_b_col])*[v0; R_b_dot_col]; 
 cosbeta_dot_l = simplify(cosbeta_dot_l);
 
+fileID = fopen('a.txt','w');
+fprintf(fileID, 'cosbeta_dot=%s;\n\ncosbeta_dot_l=%s;',char(cosbeta_dot),char(cosbeta_dot_l));
+fclose(fileID);
 

@@ -1,0 +1,62 @@
+function cosbeta_dot = cosbetadotsyms_twosensor(u)
+% from the symbol expression 
+%input is the feature point and the state:
+
+p_fx = u(19);
+p_fy = u(20);
+p_fz = u(21);
+
+
+%the position of the vehicle:
+% global x0_x  x0_y  x0_z; 
+ x0_x = u(1); x0_y = u(2);   x0_z = u(3);
+
+%the velocity of the vehicle, in earth frame:
+% global v0_x v0_y v0_z; 
+
+v0_x = u(4); v0_y = u(5);  v0_z =u(6);
+
+% global r0_11 r0_12 r0_13 r0_21 r0_22 r0_23 r0_31 r0_32 r0_33;
+
+r0_11 =u(7);  r0_12 =u(8); r0_13 =u(9); r0_21=u(10);  r0_22=u(11);  r0_23=u(12);  r0_31=u(13);  r0_32 =u(14); r0_33 =u(15);
+ 
+% global omega0_x omega0_y omega0_z;
+omega0_x =u(16); omega0_y =u(17); omega0_z =u(18);
+
+
+%the rotation matrix of body frame relative to lidar frame
+ rbl_11 = u(22); rbl_12 = u(22); rbl_13  = u(22);  rbl_21 = u(22); rbl_22 rbl_23 rbl_31 rbl_32 rbl_33;
+Rbl = [rbl_11, rbl_12, rbl_13; rbl_21, rbl_22, rbl_23; rbl_31, rbl_32, rbl_33];
+
+%the rotation matrix of body frame relative to camera frame
+syms rbc_11 rbc_12 rbc_13  rbc_21 rbc_22 rbc_23 rbc_31 rbc_32 rbc_33;
+Rbc = [rbc_11, rbc_12, rbc_13; rbc_21, rbc_22, rbc_23; rbc_31, rbc_32, rbc_33];
+
+
+
+%the rotation matrix of body frame relative to lidar frame
+syms rbl_11 rbl_12 rbl_13  rbl_21 rbl_22 rbl_23 rbl_31 rbl_32 rbl_33;
+Rbl = [rbl_11, rbl_12, rbl_13; rbl_21, rbl_22, rbl_23; rbl_31, rbl_32, rbl_33];
+
+%the rotation matrix of body frame relative to camera frame
+syms rbc_11 rbc_12 rbc_13  rbc_21 rbc_22 rbc_23 rbc_31 rbc_32 rbc_33;
+Rbc = [rbc_11, rbc_12, rbc_13; rbc_21, rbc_22, rbc_23; rbc_31, rbc_32, rbc_33];
+
+
+
+%the rotation matrix of body frame relative to lidar frame
+syms rbl_11 rbl_12 rbl_13  rbl_21 rbl_22 rbl_23 rbl_31 rbl_32 rbl_33;
+Rbl = [rbl_11, rbl_12, rbl_13; rbl_21, rbl_22, rbl_23; rbl_31, rbl_32, rbl_33];
+
+%the rotation matrix of body frame relative to camera frame
+syms rbc_11 rbc_12 rbc_13  rbc_21 rbc_22 rbc_23 rbc_31 rbc_32 rbc_33;
+Rbc = [rbc_11, rbc_12, rbc_13; rbc_21, rbc_22, rbc_23; rbc_31, rbc_32, rbc_33];
+
+
+
+
+
+cosbeta_dot = ((p_fx - x0_x)*(omega0_x*r0_12 - omega0_y*r0_11)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)*(p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z))/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2) - ((p_fy - x0_y)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2) - ((p_fy - x0_y)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2))*(omega0_y*r0_23 - omega0_z*r0_22) - ((p_fz - x0_z)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2) - ((p_fz - x0_z)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2))*(omega0_y*r0_33 - omega0_z*r0_32) - v0_x*(r0_11/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2) - ((2*r0_11*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z) + 2*r0_12*(p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z) + 2*r0_13*(p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z))*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z))/(2*((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2))) - v0_y*(r0_21/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2) - ((2*r0_21*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z) + 2*r0_22*(p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z) + 2*r0_23*(p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z))*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z))/(2*((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2))) - v0_z*(r0_31/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2) - ((2*r0_31*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z) + 2*r0_32*(p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z) + 2*r0_33*(p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z))*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z))/(2*((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2))) - ((p_fx - x0_x)*(omega0_x*r0_13 - omega0_z*r0_11)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)*(p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z))/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2) - ((p_fx - x0_x)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(1/2) - ((p_fx - x0_x)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2)/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2))*(omega0_y*r0_13 - omega0_z*r0_12) - ((p_fy - x0_y)*(omega0_x*r0_23 - omega0_z*r0_21)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)*(p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z))/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2) + ((p_fy - x0_y)*(omega0_x*r0_22 - omega0_y*r0_21)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)*(p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z))/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2) - ((p_fz - x0_z)*(omega0_x*r0_33 - omega0_z*r0_31)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)*(p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z))/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2) + ((p_fz - x0_z)*(omega0_x*r0_32 - omega0_y*r0_31)*(p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)*(p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z))/((p_fx*r0_11 + p_fy*r0_21 + p_fz*r0_31 - r0_11*x0_x - r0_21*x0_y - r0_31*x0_z)^2 + (p_fx*r0_12 + p_fy*r0_22 + p_fz*r0_32 - r0_12*x0_x - r0_22*x0_y - r0_32*x0_z)^2 + (p_fx*r0_13 + p_fy*r0_23 + p_fz*r0_33 - r0_13*x0_x - r0_23*x0_y - r0_33*x0_z)^2)^(3/2);
+
+ 
+ 
