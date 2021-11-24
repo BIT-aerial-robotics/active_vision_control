@@ -49,8 +49,8 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     mexPrintf("\nACADO Toolkit for Matlab - Developed by David Ariens and Rien Quirynen, 2009-2013 \n"); 
     mexPrintf("Support available at http://www.acadotoolkit.org/matlab \n \n"); 
 
-    if (nrhs != 19){ 
-      mexErrMsgTxt("This problem expects 19 right hand side argument(s) since you have defined 19 MexInput(s)");
+    if (nrhs != 20){ 
+      mexErrMsgTxt("This problem expects 20 right hand side argument(s) since you have defined 20 MexInput(s)");
     } 
  
     TIME autotime;
@@ -69,7 +69,8 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     DifferentialState r0_31;
     DifferentialState r0_32;
     DifferentialState r0_33;
-    DifferentialState cbeta;
+    DifferentialState cbetac;
+    DifferentialState cbetal;
     DifferentialState const_L;
     Control omega0_x;
     Control omega0_y;
@@ -208,8 +209,15 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     mexinput18_temp = mxGetPr(prhs[18]); 
     double mexinput18 = *mexinput18_temp; 
 
+    double *mexinput19_temp = NULL; 
+    if( !mxIsDouble(prhs[19]) || mxIsComplex(prhs[19]) || !(mxGetM(prhs[19])==1 && mxGetN(prhs[19])==1) ) { 
+      mexErrMsgTxt("Input 19 must be a noncomplex scalar double.");
+    } 
+    mexinput19_temp = mxGetPr(prhs[19]); 
+    double mexinput19 = *mexinput19_temp; 
+
     DifferentialEquation acadodata_f1;
-    IntermediateState setc_is_1(22);
+    IntermediateState setc_is_1(23);
     setc_is_1(0) = autotime;
     setc_is_1(1) = x0_x;
     setc_is_1(2) = x0_y;
@@ -226,13 +234,14 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     setc_is_1(13) = r0_31;
     setc_is_1(14) = r0_32;
     setc_is_1(15) = r0_33;
-    setc_is_1(16) = cbeta;
-    setc_is_1(17) = const_L;
-    setc_is_1(18) = omega0_x;
-    setc_is_1(19) = omega0_y;
-    setc_is_1(20) = omega0_z;
-    setc_is_1(21) = T_net;
-    CFunction cLinkModel_1( 17, quadrotor_dynamics_L ); 
+    setc_is_1(16) = cbetac;
+    setc_is_1(17) = cbetal;
+    setc_is_1(18) = const_L;
+    setc_is_1(19) = omega0_x;
+    setc_is_1(20) = omega0_y;
+    setc_is_1(21) = omega0_z;
+    setc_is_1(22) = T_net;
+    CFunction cLinkModel_1( 18, quadrotor_dynamics_L ); 
     acadodata_f1 << cLinkModel_1(setc_is_1); 
 
     OCP ocp1(mexinput0, mexinput1, 10);
@@ -253,11 +262,13 @@ void mexFunction( int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[] )
     ocp1.subjectTo(AT_START, r0_31 == mexinput14);
     ocp1.subjectTo(AT_START, r0_32 == mexinput15);
     ocp1.subjectTo(AT_START, r0_33 == mexinput16);
-    ocp1.subjectTo(AT_START, cbeta == mexinput17);
-    ocp1.subjectTo(AT_START, const_L == mexinput18);
+    ocp1.subjectTo(AT_START, cbetac == mexinput17);
+    ocp1.subjectTo(AT_START, cbetal == mexinput18);
+    ocp1.subjectTo(AT_START, const_L == mexinput19);
     ocp1.subjectTo((-5.00000000000000000000e-01) <= omega0_x <= 5.00000000000000000000e-01);
     ocp1.subjectTo((-5.00000000000000000000e-01) <= omega0_y <= 5.00000000000000000000e-01);
     ocp1.subjectTo((-1.00000000000000000000e+00) <= omega0_z <= 1.00000000000000000000e+00);
+    ocp1.subjectTo(cbetac >= 5.00000000000000000000e-01);
     ocp1.subjectTo(atan(r0_32/r0_33) <= 5.23598775598298815659e-01);
     ocp1.subjectTo((-asin(r0_31)) <= 5.23598775598298815659e-01);
 

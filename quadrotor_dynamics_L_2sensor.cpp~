@@ -33,7 +33,9 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
     
     r0_11 = x[7]; r0_12 = x[8]; r0_13 = x[9]; r0_21 = x[10]; r0_22 = x[11];
 	r0_23 = x[12]; r0_31 = x[13]; r0_32 = x[14]; r0_33 = x[15];  //the rotation matrix of the load
-    double cosbeta = x[16];  //cos beta
+    double cosbetac = x[16];  //cos beta in the camera
+    double cosbetal;
+    //cosbetal = x[17];  //cos beta in the lidar
     double const_L = x[17]; //the cost function of the optimal control
     
 	omega0_x = x[18]; omega0_y = x[19]; omega0_z = x[20];   //the angular velocity of the load, input
@@ -75,9 +77,20 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
     
     Eigen::Matrix3d R_b_c;  //rotation matrix of body frame relative to camera frame 
     Eigen::Matrix3d R_b_l;  //rotation matrix of body frame relative to lidar frame 
-    Eigen::Mart
+    Eigen::Vector3d p_b_c;  //position of body frame relative to camera frame 
+    Eigen::Vector3d p_b_l;  //position of body frame relative to lidar frame 
     
-    double state_feature[21];
+    R_b_c << 1, 0, 0,
+            0, 1, 0, 
+            0, 0, 1;
+    R_b_l << 1, 0, 0,
+            0, 1, 0,
+            0, 0, 1;
+    p_b_c << 0, 0, 0;
+    p_b_l << 0, 0, 0; 
+    
+    
+    double state_feature[45];
     for (int i = 0; i < 15; i++)
       state_feature[i]= x[i+1];
     state_feature[15]= x[18];
@@ -87,25 +100,42 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
     state_feature[19]= p_fy;
     state_feature[20]= p_fz;
     
-    state_feature[21]= R_b_c(0,0);
-    state_feature[22]= R_b_c(0,1);
-    state_feature[23]= R_b_c(0,2);
-    state_feature[24]= R_b_c(1,0);
-    state_feature[25]= R_b_c(1,1);
-    state_feature[26]= R_b_c(1,2);
-    state_feature[27]= R_b_c(2,0);
-    state_feature[28]= R_b_c(2,1);
-    state_feature[29]= R_b_c(2,2);
+    state_feature[21]= R_b_l(0,0);
+    state_feature[22]= R_b_l(0,1);
+    state_feature[23]= R_b_l(0,2);
+    state_feature[24]= R_b_l(1,0);
+    state_feature[25]= R_b_l(1,1);
+    state_feature[26]= R_b_l(1,2);
+    state_feature[27]= R_b_l(2,0);
+    state_feature[28]= R_b_l(2,1);
+    state_feature[29]= R_b_l(2,2);
+           
+    state_feature[30]= R_b_c(0,0);
+    state_feature[31]= R_b_c(0,1);
+    state_feature[32]= R_b_c(0,2);
+    state_feature[33]= R_b_c(1,0);
+    state_feature[34]= R_b_c(1,1);
+    state_feature[35]= R_b_c(1,2);
+    state_feature[36]= R_b_c(2,0);
+    state_feature[37]= R_b_c(2,1);
+    state_feature[38]= R_b_c(2,2);
     
+    state_feature[39]= p_b_l(0);
+    state_feature[40]= p_b_l(1);
+    state_feature[41]= p_b_l(2);
     
-    
-    
+    state_feature[42]= p_b_c(0);
+    state_feature[43]= p_b_c(1);
+    state_feature[44]= p_b_c(2);   
+        
     cbeta_dot = cosbetadotsyms(state_feature);
     
     double cbeta_dot_c, cbeta_dot_l;  //dot cbeta in camera and lidar
     double* cbeta_dot_c_p = &cbeta_dot_c; 
     double* cbeta_dot_l_p = &cbeta_dot_l;
-    cosbetadotsyms_twosensor(const double u[45], cbeta_dot_c_p, cbeta_dot_l_p);
+    cosbetadotsyms_twosensor(state_feature, cbeta_dot_c_p, cbeta_dot_l_p);
+    
+    cout << "compare" << 
     
     double omega0_d[3];
     double x0_d[3];
@@ -115,7 +145,8 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
 	double p_err = x0_x*x0_x + x0_y*x0_y + x0_z*x0_z; 
     double v_err = v0_x*v0_x + v0_y*v0_y + v0_z*v0_z; 
     //double yaw_err = psi*psi;
-    double cbeta_err = (cosbeta-1)*(cosbeta-1);
+    double cbeta_err_c = (cosbetac-1)*(cosbetac-1);    
+    double cbeta_err_l = (cosbetal-1)*(cosbetal-1);
     
     Eigen::Matrix3d R0d; //the desired rotation matrix
     R0d << 1, 0, 0,
@@ -127,8 +158,7 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
     //double R_err = 0.5* ((1-deltaR(0,0))+ (1-deltaR(1,1)) + (1-deltaR(2,2)));  
     double R_err = 0.5* ( (1-deltaR(2,2)));   
     
-    double delta_x = 5*p_err + 2*v_err + 80*R_err +  200* cbeta_err; //the coefficient of the volocity can also be adjusted. 	
-
+    double delta_x = 5*p_err + 2*v_err + 80*R_err +  200* cbeta_err_c + 0* cbeta_err_l; //the coefficient of the volocity can also be adjusted. 	
  
     Eigen::Vector3d u_gen_trans;
     u_gen_trans << 0, 0, 0;   //The force is expressed in earth frame, and does not include the gravity force. 
@@ -153,13 +183,14 @@ void quadrotor_dynamics_L( double *x, double *f,  void  *user_data ){
 	f[13] = R0_dot(2,1);
 	f[14] = R0_dot(2,2);
 
-	f[15] = cbeta_dot;  
+	f[15] = cbeta_dot_c_p;  
+   // f[16] = 0;  
 
-    f[16] = 3*delta_x + 0.01*delta_u;   
-    f[16] = 10*delta_x + 0.05*delta_u;  
-    f[16] = 3*delta_x + 0.1*delta_u;  
+  /*  f[17] = 3*delta_x + 0.01*delta_u;   
+    f[17] = 10*delta_x + 0.05*delta_u;  
+    f[17] = 3*delta_x + 0.1*delta_u;  
     
-        f[16] = 2*delta_x + 0.1*delta_u;   //ok 
+        f[17] = 2*delta_x + 0.1*delta_u;   //ok */
         
         f[16] = 2*delta_x + 0.1*delta_u;  
 

@@ -15,7 +15,7 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
     acadoSet('problemname', 'quadrotorload_input_adv_2sensor'); 
     
      %sometimes, the name of the variables induces errors, I don't know why. 
-    DifferentialState x0_x  x0_y  x0_z v0_x  v0_y  v0_z  r0_11 r0_12 r0_13 r0_21 r0_22 r0_23 r0_31 r0_32 r0_33 cbeta const_L;
+    DifferentialState x0_x  x0_y  x0_z  v0_x  v0_y  v0_z  r0_11 r0_12 r0_13 r0_21 r0_22 r0_23 r0_31 r0_32 r0_33 cbetac cbetal const_L;
     Control omega0_x omega0_y omega0_z T_net;   
 
     
@@ -52,7 +52,7 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
     ocp.subjectTo( 'AT_START', v0_y ==   acado.MexInput );
     ocp.subjectTo( 'AT_START', v0_z ==   acado.MexInput );
     ocp.subjectTo( 'AT_START', r0_11 ==   acado.MexInput  );
-    ocp.subjectTo( 'AT_START', r0_12 ==   acado.MexInput);
+    ocp.subjectTo( 'AT_START', r0_12 ==   acado.MexInput );
     ocp.subjectTo( 'AT_START', r0_13  == acado.MexInput );
     ocp.subjectTo( 'AT_START', r0_21  == acado.MexInput );
     ocp.subjectTo( 'AT_START', r0_22  == acado.MexInput );
@@ -60,7 +60,8 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
     ocp.subjectTo( 'AT_START', r0_31  == acado.MexInput );
     ocp.subjectTo( 'AT_START', r0_32  == acado.MexInput );
     ocp.subjectTo( 'AT_START', r0_33  == acado.MexInput );
-    ocp.subjectTo( 'AT_START', cbeta  == acado.MexInput );
+    ocp.subjectTo( 'AT_START', cbetac  == acado.MexInput );
+    ocp.subjectTo( 'AT_START', cbetal  == acado.MexInput );
     ocp.subjectTo( 'AT_START', const_L  == acado.MexInput);
  
     % state constraints: 
@@ -75,7 +76,7 @@ BEGIN_ACADO;                                % Always start with "BEGIN_ACADO".
       ocp.subjectTo( -0.5 <= omega0_x <= 0.5);
       ocp.subjectTo( -0.5 <= omega0_y <= 0.5);
       ocp.subjectTo( -1 <= omega0_z <= 1);
-%       ocp.subjectTo( cbeta >= 0.5);
+      ocp.subjectTo( cbetac >= 0.5);
 
       ocp.subjectTo(  atan(r0_32/r0_33) <= pi/6);
       ocp.subjectTo( -asin(r0_31) <= pi/6);
@@ -120,6 +121,7 @@ out = quadrotorload_input_adv_2sensor_RUN(0, 0.5, ...  %start time and final tim
     1, 0, 0,...
     0, 0, 0,... %feedback states of the linear velocity of the load
     1, 0, 0, 0, 1, 0,  0, 0, 1,...     %feedback states of rotation matrix 
+    1,... %cosbeta
     1,... %cosbeta
     0); 
     
