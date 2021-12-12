@@ -1,5 +1,5 @@
-%% Perception awareness MPC for multiple aerial vehicle systems
-%Chuanbeibei Shi, Yushu Yu
+%% Perception awareness MPC for lidar-camera fusion
+%Chuanbeibei Shi, Yushu Yu,  Mauro Bellone
 % ------------------------------------------------
 % The corresponding data of system trajectory
 % is stored in mat file 
