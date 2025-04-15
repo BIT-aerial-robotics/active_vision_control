@@ -1,4 +1,4 @@
-# Active Vision Control for UAV Object Detection – MATLAB
+# Active Vision Control for UAVs
 
 This repository contains the official MATLAB code for the paper:
 
